@@ -28,15 +28,15 @@ NO_CONTRIBUTING_MSG = (
 class Manager:
     def __init__(self) -> None:
         self.alpa_repo = AlpaRepoBranch(
-            (Path(getcwd())), GithubAPI("", environ["INPUT_GH_API_TOKEN"])
+            (Path(getcwd())), GithubAPI("", environ["INPUT_GH-API-TOKEN"])
         )
         self.gh_repo = self.alpa_repo.gh_repo
         self.alpa_repo_config = AlpaRepoConfig.get_config()
         self.copr_proxy = PackageProxy(
             config={
                 "copr_url": "https://copr.fedorainfracloud.org",
-                "login": environ["INPUT_COPR_LOGIN"],
-                "token": environ["INPUT_COPR_TOKEN"],
+                "login": environ["INPUT_COPR-LOGIN"],
+                "token": environ["INPUT_COPR-TOKEN"],
                 "username": self.alpa_repo_config.copr_owner,
             }
         )
