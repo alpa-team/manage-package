@@ -6,4 +6,4 @@ COPY . .
 RUN pip install -r requirements.txt
 
 ENV PYTHONPATH /action_app
-CMD ["/action_app/manage_package/manage_package.py"]
+CMD ["python", "/action_app/manage_package/manage_package.py"]
