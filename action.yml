@@ -1,0 +1,22 @@
+---
+name: Manage Alpa Package
+description: React on requests to create/delete package to/from Alpa repository.
+
+branding:
+  icon: upload
+  color: blue
+
+inputs:
+  gh-token:
+    description: GitHub token of your bot with read/write access
+    required: true
+  copr-login:
+    description: login from https://copr.fedorainfracloud.org/api/
+    required: true
+  copr-token:
+    description: token from https://copr.fedorainfracloud.org/api/
+    required: true
+
+runs:
+  using: docker
+  image: "Dockerfile"
