@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import sys
 from os import environ, getcwd, getenv
 from pathlib import Path
@@ -116,4 +117,6 @@ class Manager:
 
 
 if __name__ == "__main__":
+    print(subprocess.run(["git", "config", "--global", "--add", "safe.directory", "/github/workspace"]))
+    print(subprocess.run(["git", "remote", "-v"]))
     sys.exit(Manager().react_to_trigger())

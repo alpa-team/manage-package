@@ -3,11 +3,11 @@ FROM python:3-alpine
 WORKDIR /action_app
 COPY . .
 
-RUN pip install -r requirements.txt
 RUN apk add git
+RUN pip install -r requirements.txt
 
-# set the working directory to the checked out repo
-WORKDIR /github/workspace
+# gitpython needs uname under this path
+RUN ln -s /bin/uname /usr/bin/uname
 
 ENV PYTHONPATH /action_app
-CMD ["python", "/action_app/manage_package/manage_package.py"]
+CMD ["python3", "/action_app/manage_package/manage_package.py"]
