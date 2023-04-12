@@ -20,17 +20,19 @@ jobs:
   manage:
     runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: React to new issue
-      uses: alpa-team/manage-package@<tag_name>
-      with:
-        copr-login: ${{ secrets.COPR_LOGIN }}
-        copr-token: ${{ secrets.COPR_TOKEN }}
-        gh-api-token: ${{ secrets.GH_API_TOKEN }}
-        debug: true
+      - name: React to new issue
+        uses: alpa-team/manage-package@<tag_name>
+        with:
+          copr-login: ${{ secrets.COPR_LOGIN }}
+          copr-token: ${{ secrets.COPR_TOKEN }}
+          gh-api-token: ${{ secrets.GH_API_TOKEN }}
+          debug: true
 ```
 
 ### Options
