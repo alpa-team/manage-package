@@ -53,7 +53,7 @@ class Manager:
 
     def _delete_package(self, issue_request: Issue) -> bool:
         pkg = self._get_desired_package(issue_request)
-        self.alpa_repo.git_cmd.switch(pkg)
+        self.alpa_repo.git_cmd(["switch", pkg])
         pkg_metadata = MetadataConfig.get_config()
         if issue_request.user.login not in [
             user.nick for user in pkg_metadata.maintainers
@@ -62,8 +62,8 @@ class Manager:
             return True
 
         try:
-            self.alpa_repo.git_cmd.switch("main")
-            self.alpa_repo.git_cmd.push(self.alpa_repo.remote_name, "-d", pkg)
+            self.alpa_repo.git_cmd(["switch", "main"])
+            self.alpa_repo.git_cmd(["push", self.alpa_repo.remote_name, "-d", pkg])
             self.copr_proxy.delete(
                 self.alpa_repo_config.copr_owner, self.alpa_repo_config.copr_repo, pkg
             )
@@ -117,6 +117,17 @@ class Manager:
 
 
 if __name__ == "__main__":
-    print(subprocess.run(["git", "config", "--global", "--add", "safe.directory", "/github/workspace"]))
-    print(subprocess.run(["git", "remote", "-v"]))
+    # TODO: investigate this bug in checkout action
+    print(
+        subprocess.run(
+            [
+                "git",
+                "config",
+                "--global",
+                "--add",
+                "safe.directory",
+                "/github/workspace",
+            ]
+        )
+    )
     sys.exit(Manager().react_to_trigger())
