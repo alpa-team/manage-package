@@ -7,7 +7,7 @@ branding:
   color: blue
 
 inputs:
-  gh-token:
+  gh-api-token:
     description: GitHub token of your bot with read/write access
     required: true
   copr-login:
@@ -16,6 +16,10 @@ inputs:
   copr-token:
     description: token from https://copr.fedorainfracloud.org/api/
     required: true
+  debug:
+    description: Turn on to see debug logs
+    required: false
+    default: "false"
 
 runs:
   using: docker
