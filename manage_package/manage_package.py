@@ -118,6 +118,7 @@ class Manager:
 
 if __name__ == "__main__":
     # TODO: investigate this bug in checkout action
+    logger.info("start")
     print(
         subprocess.run(
             [
@@ -127,6 +128,24 @@ if __name__ == "__main__":
                 "--add",
                 "safe.directory",
                 "/github/workspace",
+            ]
+        )
+    )
+    print(
+        subprocess.run(
+            [
+                "git",
+                "remote",
+            ]
+        )
+    )
+    print(
+        subprocess.run(
+            [
+                "git",
+                "config",
+                "--get",
+                "remote.origin.url",
             ]
         )
     )
