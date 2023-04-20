@@ -97,8 +97,10 @@ class Manager:
         logger.info(f"Issue requests to react to {filtered_issue_requests}")
         if not self.alpa_repo_config.allow_foreign_contributing:
             logger.info("This repo doesn't not support foreign contributing.")
-            for issue in filtered_issue_requests:
-                self._refuse_and_close(issue)
+            for i, issue in enumerate(filtered_issue_requests):
+                if issue.title.startswith("[alpa request-new-package]"):
+                    self._refuse_and_close(issue)
+                    filtered_issue_requests.pop(i)
 
         status = 0
         for issue in filtered_issue_requests:
