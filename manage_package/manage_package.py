@@ -1,11 +1,12 @@
 import logging
 import subprocess
 import sys
+from json import loads
 from os import environ, getcwd, getenv
 from pathlib import Path
 
 from alpa.config import AlpaRepoConfig, MetadataConfig
-from alpa.constants import REQUEST_LABEL
+from alpa.constants import REQUEST_LABEL, RequestEnum
 from alpa.gh import GithubAPI
 from alpa.repository.branch import AlpaRepoBranch
 from copr.v3.proxies.package import PackageProxy
@@ -49,7 +50,7 @@ class Manager:
 
     @staticmethod
     def _get_desired_package(issue: Issue) -> str:
-        return issue.body.split()[-1]
+        return loads(issue.body)["package"]
 
     def _delete_package(self, issue_request: Issue) -> bool:
         pkg = self._get_desired_package(issue_request)
@@ -81,13 +82,43 @@ class Manager:
             logger.error(f"Exception appeared when requesting package {exc}")
             return False
 
+    @staticmethod
+    def is_new_pkg_request(issue: Issue) -> bool:
+        return loads(issue.body)["request_type"] == RequestEnum.create
+
+    @staticmethod
+    def is_delete_pkg_request(issue: Issue) -> bool:
+        return loads(issue.body)["request_type"] == RequestEnum.delete
+
+    def handle_issue(self, issue: Issue) -> bool:
+        if (
+            not self.alpa_repo_config.allow_foreign_contributing
+            and self.is_new_pkg_request(issue)
+        ):
+            logger.info(
+                f"This repo doesn't not support foreign contributing, "
+                f"closing issue #{issue.number}"
+            )
+            self._refuse_and_close(issue)
+            return True
+
+        if self.is_new_pkg_request(issue):
+            result = self._request_package(issue)
+        else:
+            result = self._delete_package(issue)
+
+        issue.edit(state="closed")
+        if result:
+            issue.create_comment("Request was successfully completed")
+            return True
+
+        return False
+
     def react_to_trigger(self) -> int:
         issue_requests = self.gh_repo.get_issues("open", [REQUEST_LABEL]) or []
         filtered_issue_requests = []
         for issue in issue_requests:
-            if issue.title.startswith(
-                "[alpa request-new-package]"
-            ) or issue.title.startswith("[alpa delete-package]"):
+            if self.is_delete_pkg_request(issue) or self.is_new_pkg_request(issue):
                 filtered_issue_requests.append(issue)
 
         if not filtered_issue_requests:
@@ -95,24 +126,9 @@ class Manager:
             return 0
 
         logger.info(f"Issue requests to react to {filtered_issue_requests}")
-        if not self.alpa_repo_config.allow_foreign_contributing:
-            logger.info("This repo doesn't not support foreign contributing.")
-            for i, issue in enumerate(filtered_issue_requests):
-                if issue.title.startswith("[alpa request-new-package]"):
-                    self._refuse_and_close(issue)
-                    filtered_issue_requests.pop(i)
-
         status = 0
         for issue in filtered_issue_requests:
-            if issue.title.startswith("[alpa request-new-package]"):
-                result = self._request_package(issue)
-            else:
-                result = self._delete_package(issue)
-
-            issue.edit(state="closed")
-            if result:
-                issue.create_comment("Request was successfully completed")
-            else:
+            if not self.handle_issue(issue):
                 status = 1
 
         return status
