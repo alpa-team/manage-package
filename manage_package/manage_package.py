@@ -12,7 +12,6 @@ from alpa.repository.branch import AlpaRepoBranch
 from copr.v3.proxies.package import PackageProxy
 from github.Issue import Issue
 
-
 if getenv("INPUT_DEBUG") == "true" or getenv("RUNNER_DEBUG") == "1":
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 else:
